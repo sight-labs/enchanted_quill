@@ -1,6 +1,17 @@
-require "bundler/gem_tasks"
-require "rspec/core/rake_task"
+$:.unshift("/Library/RubyMotion/lib")
+require 'motion/project/template/ios'
+require 'bundler'
+require 'bundler/gem_tasks'
 
-RSpec::Core::RakeTask.new(:spec)
+if ARGV.join(' ') =~ /spec/
+  Bundler.require :default, :spec
+else
+  Bundler.require
+end
 
-task :default => :spec
+require '.lib/enchanted_quill'
+
+Motion::Project::App.setup do |app|
+  app.name = 'EnchantedQuill'
+  app.frameworks += %w(Foundation UIKit)
+end
