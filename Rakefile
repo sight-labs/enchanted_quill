@@ -9,7 +9,7 @@ else
   Bundler.require
 end
 
-require '.lib/enchanted_quill'
+require './lib/enchanted_quill'
 
 Motion::Project::App.setup do |app|
   app.name = 'EnchantedQuill'

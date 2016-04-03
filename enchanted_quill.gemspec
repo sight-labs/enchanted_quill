@@ -17,8 +17,8 @@ Gem::Specification.new do |spec|
   files << 'LICENSE.txt'
   files << 'CODE_OF_CONDUCT.md'
   files.concat(Dir.glob('lib/**/*.rb'))
-  gem.files          = files
-  gem.test_files     = gem.files.grep(%r{^(test|spec|features)/})
+  spec.files          = files
+  spec.test_files     = spec.files.grep(%r{^(test|spec|features)/})
   spec.require_paths = ["lib"]
 
   spec.add_development_dependency 'rake'

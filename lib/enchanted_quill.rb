@@ -7,5 +7,5 @@ end
 Motion::Project::App.setup do |app|
   lib_dir = File.join(File.dirname(__FILE__))
   app.files.unshift(Dir.glob(File.join(lib_dir, "enchanted_quill/**/*.rb")))
-  app.frameworks += %{ Foundation UIKit }
+  app.frameworks += %w{ Foundation UIKit }
 end
