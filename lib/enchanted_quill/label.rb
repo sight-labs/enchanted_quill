@@ -4,7 +4,8 @@ module EnchantedQuill
                 :category_tap_handler, :mention_color, :mention_selected_color,
                 :hashtag_color, :hashtag_selected_color, :category_color,
                 :category_selected_color, :url_color, :url_selected_color,
-                :line_spacing
+                :line_spacing, :line_height_multiple, :minimum_line_height,
+                :maximum_line_height
 
     def init
       super.tap do |label|
@@ -175,6 +176,21 @@ module EnchantedQuill
       update_text_storage(false)
     end
 
+    def line_height_multiple=(multiple)
+      @line_height_multiple = multiple
+      update_text_storage(false)
+    end
+
+    def maximum_line_height=(height)
+      @maximum_line_height = height
+      update_text_storage(false)
+    end
+
+    def minimum_line_height=(height)
+      @minimum_line_height = height
+      update_text_storage(false)
+    end
+
     def touchesBegan(touches, withEvent: event)
       touches = touches && touches.allObjects
       touch   = touches.first
@@ -199,28 +215,32 @@ module EnchantedQuill
       super
     end
 
-    # def intrinsicContentSize
-    #   label_height = sizeThatFits(CGSizeMake(CGRectGetWidth(self.frame),  Float::MAX)).height
-    #   return CGSizeMake(self.frame.size.width, label_height + self.layoutMargins.top + self.layoutMargins.bottom)
-    # end
+    def intrinsicContentSize
+      label_height = sizeThatFits(CGSizeMake(CGRectGetWidth(self.frame),  Float::MAX)).height
+      return CGSizeMake(self.frame.size.width, label_height + self.layoutMargins.top + self.layoutMargins.bottom)
+    end
 
     def setup_label
-      @customizing = false
-      @active_elements = {}
-      self.textColor               = UIColor.blackColor
-      self.mention_color           = UIColor.blueColor
-      self.mention_selected_color  = UIColor.blueColor.colorWithAlphaComponent(0.5)
-      self.hashtag_color           = UIColor.blueColor
-      self.hashtag_selected_color  = UIColor.blueColor.colorWithAlphaComponent(0.5)
-      self.category_color          = UIColor.brownColor
-      self.category_selected_color = UIColor.brownColor.colorWithAlphaComponent(0.5)
-      self.url_color               = UIColor.blueColor
-      self.url_selected_color      = UIColor.blueColor.colorWithAlphaComponent(0.5)
+      @setup_label ||= begin
+        @customizing = false
+        @active_elements = {}
+        @height_correction = 0
+        self.line_height_multiple    = 1
+        self.textColor               = UIColor.blackColor
+        self.mention_color           = UIColor.blueColor
+        self.mention_selected_color  = UIColor.blueColor.colorWithAlphaComponent(0.5)
+        self.hashtag_color           = UIColor.blueColor
+        self.hashtag_selected_color  = UIColor.blueColor.colorWithAlphaComponent(0.5)
+        self.category_color          = UIColor.brownColor
+        self.category_selected_color = UIColor.brownColor.colorWithAlphaComponent(0.5)
+        self.url_color               = UIColor.blueColor
+        self.url_selected_color      = UIColor.blueColor.colorWithAlphaComponent(0.5)
 
-      text_storage.addLayoutManager(layout_manager)
-      layout_manager.addTextContainer(text_container)
-      text_container.lineFragmentPadding = 0
-      self.userInteractionEnabled = true
+        text_storage.addLayoutManager(layout_manager)
+        layout_manager.addTextContainer(text_container)
+        text_container.lineFragmentPadding = 0
+        self.userInteractionEnabled = true
+      end
     end
 
     private
@@ -329,12 +349,22 @@ module EnchantedQuill
 
       current_paragraph_style = attributes[NSParagraphStyleAttributeName] && attributes[NSParagraphStyleAttributeName].mutableCopy
       paragraph_style = current_paragraph_style || NSMutableParagraphStyle.alloc.init
-      paragraph_style.lineBreakMode = NSLineBreakByWordWrapping
-      paragraph_style.alignment     = textAlignment
+      paragraph_style.lineBreakMode      = NSLineBreakByWordWrapping
+      paragraph_style.alignment          = textAlignment
+      paragraph_style.lineSpacing        = line_spacing if line_spacing
+      paragraph_style.lineHeightMultiple = line_height_multiple
 
-      if line_spacing
-        paragraph_style.lineSpacing = line_spacing
-      end
+      paragraph_style.minimumLineHeight = if minimum_line_height && minimum_line_height > 0
+                                            minimum_line_height
+                                          else
+                                            font.lineHeight * line_height_multiple
+                                          end
+
+      paragraph_style.maximumLineHeight = if maximum_line_height and maximum_line_height > 0
+                                            maximum_line_height
+                                          else
+                                            font.lineHeight * line_height_multiple
+                                          end
 
       attributes[NSParagraphStyleAttributeName] = paragraph_style
       mut_attr_string.setAttributes(attributes, range: range_pointer[0])

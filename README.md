@@ -37,6 +37,12 @@ label.category_selected_color = UIColor.brownColor.colorWithAlphaComponent(0.5)
 label.url_color               = UIColor.colorWithRed(85.0/255, green: 238.0/255, blue: 151.0/255, alpha: 1)
 label.url_selected_color      = UIColor.colorWithRed(85.0/255, green: 238.0/255, blue: 151.0/255, alpha: 1).colorWithAlphaComponent(0.5)
 
+# Handle Paragraph Styling
+label.line_spacing            = 5
+label.line_height_multiple    = 1.5
+label.minimum_line_height     = 20
+label.maximum_line_height     = 30
+
 label.handle_mention_tap do |mention|
   p "Mention #{mention}"
 end
@@ -53,7 +59,7 @@ label.handle_hashtag_tap do |hashtag|
   p "Hashtag #{hashtag}"
 end
 ```
-## Better Performance 
+## Better Performance
 For better performance use the `customize` block, this basically groups all customizations on the label
 and refreshes the textContainer once instead of refreshing each time an attribute is set.
 ```ruby
@@ -102,4 +108,3 @@ Bug reports and pull requests are welcome on GitHub at https://github.com/paddin
 ## License
 
 The gem is available as open source under the terms of the [MIT License](http://opensource.org/licenses/MIT).
-
