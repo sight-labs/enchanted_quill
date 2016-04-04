@@ -8,7 +8,7 @@ Gem::Specification.new do |spec|
   spec.email         = ["gomezelom@yahoo.com"]
 
   spec.summary       = %q{RubyMotion port of ActiveLabel.swift}
-  spec.description   = %q{Drop in replacement for UILabel with support for mentions, links and hashtags}
+  spec.description   = %q{Drop in replacement for UILabel with support for mentions, links and hashtags for RubyMotion}
   spec.homepage      = "https://github.com/paddingtonsbear/enchanted_quill"
   spec.license       = "MIT"
 
