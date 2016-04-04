@@ -74,7 +74,12 @@ module EnchantedQuill
         end
         avoid_super_call = true
       when UITouchPhaseCancelled
-        @selected_element = nil
+        Dispatch::Queue.concurrent.after(0.1) do
+          Dispatch::Queue.main.async do
+            update_attributed_when_selected(false)
+            @selected_element = nil
+          end
+        end
       when UITouchPhaseStationary
       end
 
