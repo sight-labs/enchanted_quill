@@ -9,7 +9,7 @@ Gem::Specification.new do |spec|
 
   spec.summary       = %q{RubyMotion port of ActiveLabel.swift}
   spec.description   = %q{Drop in replacement for UILabel with support for mentions, links and hashtags}
-  spec.homepage      = "TODO: Put your gem's website or public repo URL here."
+  spec.homepage      = "https://github.com/paddingtonsbear/enchanted_quill"
   spec.license       = "MIT"
 
   files = []
