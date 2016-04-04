@@ -215,11 +215,6 @@ module EnchantedQuill
       super
     end
 
-    def intrinsicContentSize
-      label_height = sizeThatFits(CGSizeMake(CGRectGetWidth(self.frame),  Float::MAX)).height
-      return CGSizeMake(self.frame.size.width, label_height + self.layoutMargins.top + self.layoutMargins.bottom)
-    end
-
     def setup_label
       @setup_label ||= begin
         @customizing = false
