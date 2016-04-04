@@ -71,7 +71,7 @@ module EnchantedQuill
           word  = text.substringWithRange(url.range)
             .stringByTrimmingCharactersInSet(NSCharacterSet.whitespaceAndNewlineCharacterSet())
 
-          elements << Element.new(:url, word, range)
+          elements << Element.new(:url, word, url.range)
         end
       end
 
