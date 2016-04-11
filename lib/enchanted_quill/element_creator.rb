@@ -8,8 +8,8 @@ module EnchantedQuill
 
       mentions.each do |mention|
         if mention.range.length > 2
-          range = NSMakeRange(mention.range.location + 1, mention.range.length - 1)
-          word  = text.substringWithRange(range)
+          range = NSMakeRange(mention.range.location, mention.range.length)
+          word  = text.substringWithRange(range).strip
 
           if word[0] == '@'
             word = word[1..-1]
@@ -28,8 +28,8 @@ module EnchantedQuill
 
       hashtags.each do |hashtag|
         if hashtag.range.length > 2
-          range = NSMakeRange(hashtag.range.location + 1, hashtag.range.length - 1)
-          word  = text.substringWithRange(range)
+          range = NSMakeRange(hashtag.range.location, hashtag.range.length)
+          word  = text.substringWithRange(range).strip
 
           if word[0] == '#'
             word = word[1..-1]
@@ -48,8 +48,8 @@ module EnchantedQuill
 
       categories.each do |category|
         if category.range.length > 2
-          range = NSMakeRange(category.range.location + 1, category.range.length - 1)
-          word  = text.substringWithRange(range)
+          range = NSMakeRange(category.range.location, category.range.length)
+          word  = text.substringWithRange(range).strip
 
           if word[0] == '{' && word[-1] == '}'
             word = word[1..-2]
