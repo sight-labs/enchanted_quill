@@ -28,6 +28,65 @@ module EnchantedQuill
       layout_manager.drawGlyphsForGlyphRange(range, atPoint: new_origin)
     end
 
+    def layoutSubviews
+      super
+      text_container.size = self.bounds.size
+    end
+
+    def setPreferredMaxLayoutWidth(preferred_max_layout_width)
+      super
+      update_text_container_size(self.bounds.size)
+    end
+
+    def setFrame(frame)
+      super
+      update_text_container_size(frame.size)
+    end
+
+    def setBounds(bounds)
+      super
+      update_text_container_size(bounds.size)
+    end
+
+    def update_text_container_size(size)
+	    container_size = size
+	    width  = [size.width, self.preferredMaxLayoutWidth].min
+      height = 0
+	    text_container.size = CGSizeMake(width, height)
+    end
+
+
+    # Override UILabel Methods
+    def textRectForBounds(bounds, limitedToNumberOfLines: num_of_lines)
+	    required_rect = rect_fitting_text_for_container_size(bounds.size, for_number_of_line: num_of_lines)
+	    text_container.size = required_rect.size
+	    required_rect
+    end
+
+    def rect_fitting_text_for_container_size(size, for_number_of_line: num_of_lines)
+      text_container.size = size;
+      text_container.maximumNumberOfLines = num_of_lines
+      text_bounds = layout_manager.boundingRectForGlyphRange(NSMakeRange(0, layout_manager.numberOfGlyphs),
+                      inTextContainer: text_container)
+      total_lines = text_bounds.size.height / self.font.lineHeight
+
+      height = text_bounds.size.height
+      if num_of_lines > 0 && (num_of_lines < total_lines)
+        height -= (total_lines - num_of_lines) * self.font.lineHeight
+      elsif (num_of_lines > 0 && (num_of_lines > total_lines))
+        height += (num_of_lines - total_lines) * self.font.lineHeight
+      end
+
+      width  = text_bounds.size.width.ceil
+      height = (attributedText && attributedText.mutableString.blank?) ? 0 : height.ceil
+      CGRectMake(text_bounds.origin.x, text_bounds.origin.y, width, height)
+    end
+
+    # Override UIView methods
+    def requiresConstraintBasedLayout
+      true
+    end
+
     def customize(&block)
       @customizing = true
       block.call(self)
@@ -239,6 +298,7 @@ module EnchantedQuill
         text_storage.addLayoutManager(layout_manager)
         layout_manager.addTextContainer(text_container)
         text_container.lineFragmentPadding = 0
+        text_container.maximumNumberOfLines = 0
         self.userInteractionEnabled = true
       end
     end
@@ -266,22 +326,31 @@ module EnchantedQuill
 
       attributed_text = attributedText
       if attributed_text.nil? || attributed_text.length == 0
-        text_storage.setAttributedString(NSAttributedString.alloc.init)
+        text_storage.setAttributedString(NSAttributedString.alloc.initWithString(''))
         return
       end
 
       mut_attr_string = add_line_break(attributed_text)
+      mut_attr_string = add_default_attributes(mut_attr_string)
 
       if parse_text
         @selected_element = nil
-        active_elements.each do |type, _|
-          @active_elements[type] = []
-        end
+        @active_elements  = {}
 
-        parse_text_and_extract_active_elements(mut_attr_string)
+        Dispatch::Queue.concurrent.async do
+          parse_text_and_extract_active_elements(mut_attr_string)
+          active_elements_values = @active_elements.values.flatten.compact
+
+          if active_elements_values.count > 0
+            Dispatch::Queue.main.async do
+              add_link_attribute(mut_attr_string)
+              text_storage.setAttributedString(mut_attr_string)
+              setNeedsDisplay
+            end
+          end
+        end
       end
 
-      add_link_attribute(mut_attr_string)
       text_storage.setAttributedString(mut_attr_string)
       setNeedsDisplay
     end
@@ -293,8 +362,7 @@ module EnchantedQuill
       CGPointMake(rect.origin.x, glyph_origin_y)
     end
 
-    # add link attribute
-    def add_link_attribute(mut_attr_string)
+    def add_default_attributes(mut_attr_string)
       range_pointer = Pointer.new(NSRange.type)
       attributes = mut_attr_string.attributesAtIndex(0, effectiveRange: range_pointer).dup
 
@@ -302,8 +370,17 @@ module EnchantedQuill
       attributes[NSForegroundColorAttributeName] = self.textColor
 
       mut_attr_string.addAttributes(attributes, range: range_pointer[0])
+      mut_attr_string
+    end
 
-      attributes[NSForegroundColorAttributeName] = mention_color
+    # add link attribute
+    def add_link_attribute(mut_attr_string)
+      range_pointer = Pointer.new(NSRange.type)
+      attributes = mut_attr_string.attributesAtIndex(0, effectiveRange: range_pointer).dup
+
+      attributes[NSFontAttributeName] = self.font
+      attributes[NSForegroundColorAttributeName] = self.textColor
+      mut_attr_string.addAttributes(attributes, range: range_pointer[0])
 
       active_elements.each do |type, elements|
         case type

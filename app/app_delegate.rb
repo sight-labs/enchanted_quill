@@ -20,7 +20,7 @@ class TestLabelViewController < UIViewController
 
 
   def normal_label
-    @normal_label ||= EnchantedQuill::Label.alloc.initWithFrame(CGRectMake(20,20,self.view.bounds.size.width-20, 120)).tap do |label|
+    @normal_label ||= EnchantedQuill::Label.alloc.initWithFrame(CGRectMake(20,20,self.view.bounds.size.width-20, 130)).tap do |label|
       label.center                  = self.view.center
       label.text                    = text
       label.textColor               = UIColor.blackColor
@@ -60,7 +60,7 @@ class TestLabelViewController < UIViewController
   end
 
   def batch_customization_label
-    @batch_customization_label ||= EnchantedQuill::Label.alloc.initWithFrame(CGRectMake(0,280,self.view.bounds.size.width, 120)).tap do |label|
+    @batch_customization_label ||= EnchantedQuill::Label.alloc.initWithFrame(CGRectMake(0,280,self.view.bounds.size.width, 130)).tap do |label|
       label.customize do
         label.backgroundColor         = UIColor.blackColor
         label.text                    = text
@@ -98,7 +98,7 @@ class TestLabelViewController < UIViewController
   end
 
   def text
-    'Plot twist, @voldemort was actually the good guy. ' +
+    '@harry_potter plot twist, @voldemort was actually the good guy. ' +
     'He was framed by @dumbledore and @snape #shocker #harrywasliedto ' +
     '{adventure} {spoiler}. Checkout the truth at http://www.harry_is_a.sham or www.harryshouldhaveknown.com'
   end
