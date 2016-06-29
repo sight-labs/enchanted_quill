@@ -8,18 +8,22 @@ describe 'EnchantedQuill::Parser' do
     end
 
     context 'url elements' do
-      it 'returns an empty array if no url matches found' do
-        text  = 'dumbledore is a genius'
-        range = NSMakeRange(0, text.length)
-        elements = EnchantedQuill::Parser.parse_elements_for(:category, text, range)
-        elements.should == []
+      [ 'dumbledore is a genius',
+        'picture',
+        'wwwbar'
+      ].each do |text|
+        it 'returns an empty array if no url matches found' do
+          range = NSMakeRange(0, text.length)
+          elements = EnchantedQuill::Parser.parse_elements_for(:category, text, range)
+          elements.should == []
+        end
       end
 
       [ 'www.google.com',
         'http://www.google.com',
         'https://www.google.com',
         'www.google.io',
-        'www.google.drop'
+        'www.google.drop',
       ].each do |text|
         it 'returns an array of matches found' do
           range = NSMakeRange(0, text.length)

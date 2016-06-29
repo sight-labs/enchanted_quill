@@ -19,6 +19,12 @@ module EnchantedQuill
       end
     end
 
+    def awakeFromNib
+      super.tap do
+        update_text_storage
+      end
+    end
+
     def drawTextInRect(rect)
       range               = NSMakeRange(0, text_storage.length)
       text_container.size = rect.size
@@ -326,7 +332,9 @@ module EnchantedQuill
 
       attributed_text = attributedText
       if attributed_text.nil? || attributed_text.length == 0
+        clear_active_elements
         text_storage.setAttributedString(NSAttributedString.alloc.initWithString(''))
+        setNeedsDisplay
         return
       end
 
@@ -334,25 +342,30 @@ module EnchantedQuill
       mut_attr_string = add_default_attributes(mut_attr_string)
 
       if parse_text
-        @selected_element = nil
-        @active_elements  = {}
+        clear_active_elements
 
-        Dispatch::Queue.concurrent.async do
+        # Dispatch::Queue.concurrent.async do
+          p "BEfore Extr = #{mut_attr_string.mutableString.inspect}"
           parse_text_and_extract_active_elements(mut_attr_string)
           active_elements_values = @active_elements.values.flatten.compact
 
           if active_elements_values.count > 0
-            Dispatch::Queue.main.async do
+            # Dispatch::Queue.main.async do
               add_link_attribute(mut_attr_string)
               text_storage.setAttributedString(mut_attr_string)
               setNeedsDisplay
-            end
+            # end
           end
-        end
+        # end
       end
 
       text_storage.setAttributedString(mut_attr_string)
       setNeedsDisplay
+    end
+
+    def clear_active_elements
+      @selected_element = nil
+      @active_elements  = {}
     end
 
     def text_origin(rect)
@@ -391,7 +404,11 @@ module EnchantedQuill
         end
 
         elements.each do |element|
+          p "Before"
+          p "mut_attr_string = #{mut_attr_string.mutableString.inspect}"
+          p "Element = #{element}"
           mut_attr_string.setAttributes(attributes, range: element.range)
+          p "After"
         end
       end
     end
