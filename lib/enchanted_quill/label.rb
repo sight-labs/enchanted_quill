@@ -343,20 +343,14 @@ module EnchantedQuill
 
       if parse_text
         clear_active_elements
+        parse_text_and_extract_active_elements(mut_attr_string)
+        active_elements_values = @active_elements.values.flatten.compact
 
-        # Dispatch::Queue.concurrent.async do
-          p "BEfore Extr = #{mut_attr_string.mutableString.inspect}"
-          parse_text_and_extract_active_elements(mut_attr_string)
-          active_elements_values = @active_elements.values.flatten.compact
-
-          if active_elements_values.count > 0
-            # Dispatch::Queue.main.async do
-              add_link_attribute(mut_attr_string)
-              text_storage.setAttributedString(mut_attr_string)
-              setNeedsDisplay
-            # end
-          end
-        # end
+        if active_elements_values.count > 0
+          add_link_attribute(mut_attr_string)
+          text_storage.setAttributedString(mut_attr_string)
+          setNeedsDisplay
+        end
       end
 
       text_storage.setAttributedString(mut_attr_string)
@@ -404,11 +398,7 @@ module EnchantedQuill
         end
 
         elements.each do |element|
-          p "Before"
-          p "mut_attr_string = #{mut_attr_string.mutableString.inspect}"
-          p "Element = #{element}"
           mut_attr_string.setAttributes(attributes, range: element.range)
-          p "After"
         end
       end
     end
